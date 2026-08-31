@@ -74,6 +74,29 @@
   function moveOf(c) { return c.pv ? (c.v - c.pv) / c.pv * 100 : 0; }
 
   // ------------------------------------------------------------- boot
+  var UNIVERSE_TTL = 2 * 60 * 60 * 1000;   // two hours
+
+  function cachedUniverse() {
+    try {
+      var c = JSON.parse(localStorage.getItem("fsl.universe"));
+      if (c && c.ts && Date.now() - c.ts < UNIVERSE_TTL && c.companies && c.companies.length) return c;
+    } catch (e) {}
+    return null;
+  }
+
+  async function loadUniverse(force) {
+    var c = force ? null : cachedUniverse();
+    if (c) { S.companies = c.companies; S.ready = true; return true; }
+    var u = await api("universe", {});
+    if (!u.ok) { S.err = u.error; render(); return false; }
+    S.companies = u.companies || [];
+    S.ready = true;
+    try {
+      localStorage.setItem("fsl.universe", JSON.stringify({ ts: Date.now(), companies: S.companies }));
+    } catch (e) {}
+    return true;
+  }
+
   async function boot() {
     var params = new URLSearchParams(location.search);
     var invited = params.get("league");
@@ -82,12 +105,12 @@
       S.invited = invited.toUpperCase();
       S.me = null;
     }
+    var c = cachedUniverse();
+    if (c) { S.companies = c.companies; S.ready = true; }
+    render();                                  // the sign-in form appears immediately
+    if (!c) await loadUniverse(false);
     render();
-    var u = await api("universe", {});
-    if (!u.ok) { S.err = u.error; S.view = "auth"; return render(); }
-    S.companies = u.companies || [];
-    S.ready = true;
-    if (S.me) { await refresh(); } else { S.view = "auth"; render(); }
+    if (S.me) await refresh();
   }
 
   async function refresh() {
@@ -96,7 +119,11 @@
     var r = await api("state", { code: S.me.code, email: S.me.email });
     S.busy = false;
     if (!r.ok) { S.err = r.error; S.view = "auth"; S.me = null; forgetMe(); return render(); }
+    var lastWeek = null;
+    try { lastWeek = Number(localStorage.getItem("fsl.week")); } catch (e) {}
     S.league = r.league; S.managers = r.managers || []; S.owned = r.owned || {};
+    if (lastWeek && S.league.week !== lastWeek) { await loadUniverse(true); }
+    try { localStorage.setItem("fsl.week", String(S.league.week)); } catch (e) {}
     var m = meMgr();
     draft.lineup = (m && m.lineup && m.lineup.length) ? m.lineup.slice() : [];
     draft.conv = m ? m.conviction : null;
@@ -111,6 +138,7 @@
     S.busy = false;
     if (!r.ok) { S.err = r.error; return render(); }
     S.me = { email: String(mail).trim().toLowerCase(), name: who, code: r.code };
+    S.view = "build";
     saveMe(); S.note = "League created. Share the link on the Invite tab."; await refresh();
   }
 
@@ -121,6 +149,7 @@
     S.busy = false;
     if (!r.ok) { S.err = r.error; return render(); }
     S.me = { email: String(mail).trim().toLowerCase(), name: who, code: r.code };
+    S.view = "build";
     saveMe(); await refresh();
   }
 
@@ -177,7 +206,7 @@
       ? '<p class="note" style="margin-bottom:10px">You were invited to <b>' + esc(S.invited) +
         '</b>. Fill your name and email and press Join.</p>' : "";
     return '<div class="eyebrow"><span>Sign in</span><span>' +
-      (S.ready ? S.companies.length + " companies loaded" : "loading…") + '</span></div>' +
+      (S.ready ? S.companies.length + " companies loaded" : "loading the company list…") + '</span></div>' +
       '<div class="meter">' + inv +
       '<div class="search"><input type="text" id="lgName" placeholder="League name, e.g. Oficina Vigo" value="' +
         esc(S.invited || "") + '"></div>' +
@@ -387,13 +416,15 @@
       $("pRank").textContent = "—"; $("pPts").textContent = "—"; $("pCr").textContent = "—";
     }
     $("hl").textContent = !S.me ? "Join a league"
+      : (!S.ready || !m) ? "Loading…"
       : S.view === "build" ? "Build your ten"
       : S.view === "market" ? "The market"
       : S.view === "table" ? "The table"
       : S.view === "invite" ? "Invite" : "Field your seven";
 
-    var body = !S.ready && !S.err ? '<div class="empty">Loading the company list…</div>'
-      : !S.me ? authHTML()
+    var loadingLeague = S.me && (!S.ready || !m);
+    var body = !S.me ? authHTML()
+      : loadingLeague ? '<div class="empty">Loading your league…</div>'
       : S.view === "invite" ? inviteHTML()
       : S.view === "build" ? buildHTML()
       : S.view === "market" ? marketHTML()
@@ -410,8 +441,14 @@
     document.querySelectorAll(".tab").forEach(function (b) {
       b.addEventListener("click", function () { S.view = b.dataset.v; render(); });
     });
-    var j = $("joinBtn"); if (j) j.addEventListener("click", joinLeague);
-    var c = $("createBtn"); if (c) c.addEventListener("click", createLeague);
+    var j = $("joinBtn"); if (j) j.addEventListener("click", function () {
+      if (!S.ready) { S.err = "still loading the company list, give it a second"; return render(); }
+      joinLeague();
+    });
+    var c = $("createBtn"); if (c) c.addEventListener("click", function () {
+      if (!S.ready) { S.err = "still loading the company list, give it a second"; return render(); }
+      createLeague();
+    });
     var q = $("q");
     if (q) {
       q.addEventListener("input", function (e) {
