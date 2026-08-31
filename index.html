@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fantasy Stock League</title>
+<meta name="description" content="A season-long fantasy game played with listed companies. Private leagues for friends and colleagues.">
+<style>
+
+  :root{
+    --paper:#E9EDF2; --paper-2:#DDE4EC; --ink:#0B1B2B; --ink-2:#41546A;
+    --line:#C3CEDA; --accent:#3D3BE8; --signal:#F2C230; --up:#0F8A5F; --down:#C22E42;
+    --card:#FFFFFF;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{ -webkit-text-size-adjust:100%; }
+  body{
+    background:var(--paper); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-size:15px; line-height:1.45; max-width:860px; margin:0 auto; position:relative;
+    min-height:100vh; padding-bottom:env(safe-area-inset-bottom);
+  }
+  .mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-variant-numeric:tabular-nums}
+
+  .top{background:var(--ink);color:var(--paper);padding:16px 18px 14px}
+  .brand{font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:#8FA6BE;
+    display:flex;justify-content:space-between;align-items:center}
+  .headline{font-size:clamp(23px,6vw,34px);font-weight:800;letter-spacing:-.03em;
+    text-transform:uppercase;line-height:.98;margin-top:9px}
+  .sub{color:#8FA6BE;font-size:12.5px;margin-top:5px}
+  .purse{display:flex;gap:20px;margin-top:12px;padding-top:11px;border-top:1px solid #22364B}
+  .purse div{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#8FA6BE}
+  .purse b{display:block;font-size:18px;color:#fff;margin-top:2px;font-weight:700}
+
+  .tabs{display:flex;background:var(--ink);padding:0 10px}
+  .tab{flex:1;background:none;border:0;color:#8FA6BE;padding:10px 4px 12px;cursor:pointer;
+    font:inherit;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;border-bottom:3px solid transparent}
+  .tab[aria-selected="true"]{color:#fff;border-bottom-color:var(--signal)}
+  .tab:focus-visible{outline:2px solid var(--signal);outline-offset:-2px}
+  .body{padding:16px 14px 24px;min-height:460px}
+  .eyebrow{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-2);
+    display:flex;justify-content:space-between;align-items:baseline;margin:0 0 8px}
+
+  .meter{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:11px 12px;margin-bottom:11px}
+  .mrow{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;color:var(--ink-2)}
+  .mrow b{font-size:19px;color:var(--ink);letter-spacing:-.01em}
+  .bar{height:7px;background:var(--paper-2);border-radius:99px;margin-top:8px;overflow:hidden}
+  .bar i{display:block;height:100%;background:var(--accent);transition:width .3s}
+  .bar i.tight{background:var(--signal)}
+  .bar i.over{background:var(--down)}
+
+  .slots{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin-bottom:12px}
+  @media (max-width:640px){.slots{grid-template-columns:repeat(5,1fr)}}
+  .slot{background:var(--paper-2);border:1px dashed var(--line);border-radius:7px;
+    aspect-ratio:1/1.15;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    font-size:10px;color:var(--ink-2);padding:2px}
+  .slot.full{background:var(--ink);border:1px solid var(--ink);color:#fff;cursor:pointer}
+  .slot.full b{font-size:11.5px;letter-spacing:-.02em;display:block}
+  .slot.full span{font-size:9px;color:#93A8BE;margin-top:1px}
+  .slot.full:hover{background:var(--down);border-color:var(--down)}
+
+  .search{display:flex;gap:6px;margin-bottom:8px}
+  input[type=text]{flex:1;font:inherit;font-size:14px;padding:10px 12px;border:1px solid var(--line);
+    border-radius:8px;background:var(--card);color:var(--ink);min-width:0}
+  input[type=text]:focus{outline:2px solid var(--accent);outline-offset:-1px}
+  select{font:inherit;font-size:12px;padding:9px 7px;border:1px solid var(--line);border-radius:8px;
+    background:var(--card);color:var(--ink)}
+  .chips{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+  .fchip{background:var(--card);border:1px solid var(--line);border-radius:99px;padding:5px 11px;
+    font:inherit;font-size:11px;font-weight:600;cursor:pointer;color:var(--ink-2)}
+  .fchip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+
+  .results{max-height:min(290px,55vh);overflow:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:9px;background:var(--card)}
+  .res{display:flex;align-items:center;gap:9px;padding:9px 11px;border-bottom:1px solid var(--paper-2)}
+  .res:last-child{border-bottom:0}
+  .res .g{flex:1;min-width:0}
+  .res .n{font-weight:700;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .res .m{font-size:11px;color:var(--ink-2);margin-top:1px}
+  .res .c{font-weight:800;font-size:14px;white-space:nowrap}
+  .taken{opacity:.45}
+  .empty{padding:26px 14px;text-align:center;color:var(--ink-2);font-size:13px}
+
+  .add{background:var(--accent);color:#fff;border:0;border-radius:7px;padding:7px 12px;
+    font:inherit;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+  .add[disabled]{background:var(--paper-2);color:var(--ink-2);cursor:not-allowed}
+
+  .sheet{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+  @media (max-width:520px){.sheet{grid-template-columns:repeat(3,1fr)}}
+  .chip{width:100%;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 4px;
+    cursor:pointer;font:inherit;text-align:center;display:block;position:relative;transition:transform .12s,border-color .12s}
+  .chip:hover{border-color:var(--ink-2);transform:translateY(-1px)}
+  .chip:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+  .chip .tk{font-size:12.5px;font-weight:800;letter-spacing:-.02em}
+  .chip .vl{font-size:10px;color:var(--ink-2);margin-top:1px;display:block}
+  .chip .fm{display:block;font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);margin-top:3px}
+  .chip.on{background:var(--ink);border-color:var(--ink)}
+  .chip.on .tk{color:#fff} .chip.on .vl,.chip.on .fm{color:#93A8BE}
+  .chip.conv{border-color:var(--signal);box-shadow:inset 0 0 0 2px var(--signal)}
+  .chip.locked{opacity:.42;cursor:not-allowed}
+  .chip .flag{position:absolute;top:-6px;right:-4px;font-size:8px;font-weight:800;
+    background:var(--signal);color:var(--ink);border-radius:3px;padding:1px 3px}
+  .chip .star{position:absolute;top:-7px;left:-5px;font-size:12px;line-height:1}
+  .chip .dv{font-size:9px;font-weight:700}
+
+  .rule{border:0;border-top:1px solid var(--line);margin:14px 0}
+  .note{font-size:12.5px;color:var(--ink-2)}
+  .warn{color:var(--down);font-weight:600}
+  pre{margin:0;color:var(--ink)}
+  .go{width:100%;margin-top:12px;background:var(--accent);color:#fff;border:0;border-radius:9px;padding:15px;
+    font:inherit;font-weight:800;letter-spacing:.1em;text-transform:uppercase;font-size:13px;cursor:pointer}
+  .go[disabled]{background:var(--paper-2);color:var(--ink-2);cursor:not-allowed}
+  .ghost{background:none;border:1px solid var(--line);color:var(--ink);margin-top:8px}
+
+  .row{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);
+    border-radius:8px;padding:10px 12px;margin-bottom:6px}
+  .row .grow{flex:1;min-width:0}
+  .row .nm{font-weight:700;font-size:14px}
+  .row .mt{font-size:11.5px;color:var(--ink-2);margin-top:1px}
+  .pos{color:var(--up);font-weight:800} .neg{color:var(--down);font-weight:800}
+  .rank{width:24px;height:24px;flex:none;border-radius:50%;background:var(--ink);color:#fff;
+    font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center}
+  .you{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+  .mini{background:var(--ink);color:#fff;border:0;border-radius:6px;padding:8px 11px;font:inherit;
+    font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+  .mini[disabled]{background:var(--paper-2);color:var(--ink-2);cursor:not-allowed}
+
+  .veil{position:absolute;inset:0;background:rgba(11,27,43,.97);color:#fff;z-index:40;padding:18px 16px;overflow:auto}
+  .veil h3{font-size:clamp(22px,5.5vw,32px);font-weight:800;text-transform:uppercase;letter-spacing:-.03em;line-height:1}
+  .veil .big{font-size:50px;font-weight:800;letter-spacing:-.04em;margin:6px 0 2px}
+  .veil .pos{color:#4ED6A0} .veil .neg{color:#FF7085}
+  .srow{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #22364B;
+    opacity:0;transform:translateY(6px);animation:sIn .34s forwards}
+  @keyframes sIn{to{opacity:1;transform:none}}
+  .srow .sg{flex:1;min-width:0} .srow .st{font-weight:700;font-size:13.5px}
+  .srow .ss{font-size:11px;color:#8FA6BE;margin-top:1px} .srow .sp{font-weight:800;font-size:17px}
+  @media (prefers-reduced-motion:reduce){.srow{animation:none;opacity:1;transform:none}}
+  .veil .go{background:var(--signal);color:var(--ink)}
+
+
+  .spark{width:40px;height:12px;display:block;margin:3px auto 0;opacity:.9}
+  .res .spark{width:46px;height:16px;margin:0;flex:none}
+  .chip.up{border-color:#9AD9BE;background:linear-gradient(#fff,#F2FBF7)}
+  .chip.down{border-color:#EBB3BC;background:linear-gradient(#fff,#FDF4F5)}
+  .chip.on.up,.chip.on.down{background:var(--ink)}
+  .chartwrap{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:11px 12px;margin-bottom:11px}
+  .chart{width:100%;height:96px;display:block;overflow:visible}
+  .rival{display:flex;justify-content:space-between;align-items:center;background:var(--ink);color:#fff;
+    border-radius:10px;padding:10px 13px;margin-bottom:10px}
+  .rival .rl{display:block;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:#8FA6BE}
+  .rival b{font-size:16px;letter-spacing:-.01em}
+  .rival .rg{font-size:22px;font-weight:800;color:var(--signal)}
+  .badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:11px}
+  .badge{background:var(--card);border:1px solid var(--line);border-radius:99px;padding:5px 11px;
+    font-size:11px;font-weight:700}
+  .awards{display:flex;gap:8px;margin-top:14px}
+  .awards .aw{flex:1;background:#16273A;border-radius:9px;padding:9px 11px}
+  .awards .aw span{display:block;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:#8FA6BE}
+  .awards .aw b{font-size:15px;margin-top:2px;display:block}
+  textarea{width:100%;height:74px;font-family:ui-monospace,Menlo,monospace;font-size:11px;
+    padding:9px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink);resize:vertical}
+  .foot{background:var(--ink);color:#61799A;font-size:10.5px;padding:10px 16px;text-align:center}
+  .foot b{color:#8FA6BE}
+
+.banner{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:12px}
+.banner.ok{border-color:var(--up);color:var(--up)}
+.banner.warn{border-color:var(--down);color:var(--down)}
+input[readonly]{background:var(--paper-2)}
+.slot.full{cursor:pointer}
+
+/* the app is a page, not a fixed panel: let it grow and let the page scroll */
+.body{padding-bottom:34px}
+.foot{position:static}
+@media (max-width:520px){
+  .slots{grid-template-columns:repeat(5,1fr)}
+  .sheet{grid-template-columns:repeat(3,1fr)}
+  .headline{font-size:26px}
+}
+
+</style>
+</head>
+<body>
+  <div class="top">
+    <div class="brand"><span>Fantasy Stock League</span><span id="wkLabel">Loading</span></div>
+    <div class="headline" id="hl">Fantasy Stock League</div>
+    <div class="purse">
+      <div>Rank<b id="pRank">&mdash;</b></div>
+      <div>Season points<b id="pPts">&mdash;</b></div>
+      <div>Credits<b id="pCr">&mdash;</b></div>
+    </div>
+  </div>
+  <div class="tabs" id="tabs" role="tablist"></div>
+  <div class="body" id="view"><div class="empty">Loading&hellip;</div></div>
+  <div class="foot">
+    Fictional currency. No real money, no real securities. Not investment advice.
+    Prices are delayed closing values via Google Sheets.
+  </div>
+
+<script>
+/* ===================================================================
+   THE ONLY LINE YOU EVER NEED TO EDIT.
+   Paste your Apps Script web app URL between the quotes.
+   It looks like: https://script.google.com/macros/s/AKfy...../exec
+   =================================================================== */
+window.FSL_CONFIG = {
+  API_URL: "PASTE_YOUR_APPS_SCRIPT_EXEC_URL_HERE"
+};
+</script>
+<script>
+/* Fantasy Stock League — front end.
+   Talks to the Apps Script web app over JSONP, so it works from any static host. */
+(function () {
+  "use strict";
+
+  var SQUAD = 10, LINEUP = 7, BUDGET = 300000000;
+  var SHORT = { Technology: "Tech", Health: "Health", Money: "Money",
+                Everyday: "Everyday", Industry: "Industry", "Industry & Energy": "Industry" };
+
+  var S = { view: "auth", me: null, league: null, managers: [], owned: {},
+            companies: [], busy: false, err: null, note: null, ready: false };
+  var F = { q: "", fam: "all", sort: "cost-desc" };
+  var draft = { lineup: [], conv: null };
+
+  var $ = function (id) { return document.getElementById(id); };
+  var money = function (n) { return (n / 1e6).toFixed(1) + "M"; };
+  var sign = function (n) { return (n > 0 ? "+" : "") + Math.round(n); };
+  var esc = function (s) {
+    return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  };
+
+  // ------------------------------------------------------------- transport
+  var jsonpSeq = 0;
+  function api(action, params) {
+    return new Promise(function (resolve) {
+      if (!window.FSL_CONFIG || !window.FSL_CONFIG.API_URL ||
+          window.FSL_CONFIG.API_URL.indexOf("PASTE") === 0) {
+        return resolve({ ok: false, error: "assets/config.js still has the placeholder URL. Paste your Apps Script /exec URL there." });
+      }
+      var cb = "fslcb" + (++jsonpSeq) + "_" + Date.now();
+      var url = window.FSL_CONFIG.API_URL + "?action=" + encodeURIComponent(action) + "&callback=" + cb;
+      Object.keys(params || {}).forEach(function (k) {
+        if (params[k] !== undefined && params[k] !== null) {
+          url += "&" + k + "=" + encodeURIComponent(params[k]);
+        }
+      });
+      var script = document.createElement("script");
+      var done = false;
+      var timer = setTimeout(function () {
+        if (done) return;
+        done = true; cleanup();
+        resolve({ ok: false, error: "the backend did not answer. Check the web app is deployed with access set to Anyone." });
+      }, 20000);
+      function cleanup() {
+        clearTimeout(timer);
+        delete window[cb];
+        if (script.parentNode) script.parentNode.removeChild(script);
+      }
+      window[cb] = function (data) { if (done) return; done = true; cleanup(); resolve(data); };
+      script.onerror = function () {
+        if (done) return; done = true; cleanup();
+        resolve({ ok: false, error: "could not reach the backend URL" });
+      };
+      script.src = url;
+      document.head.appendChild(script);
+    });
+  }
+
+  // ------------------------------------------------------------- local profile
+  function saveMe() { try { localStorage.setItem("fsl.me", JSON.stringify(S.me)); } catch (e) {} }
+  function loadMe() { try { return JSON.parse(localStorage.getItem("fsl.me")); } catch (e) { return null; } }
+  function forgetMe() { try { localStorage.removeItem("fsl.me"); } catch (e) {} }
+
+  function co(t) {
+    for (var i = 0; i < S.companies.length; i++) if (S.companies[i].t === t) return S.companies[i];
+    return null;
+  }
+  function meMgr() {
+    for (var i = 0; i < S.managers.length; i++) if (S.managers[i].me) return S.managers[i];
+    return null;
+  }
+  function famOf(c) { return SHORT[c.f] || c.f; }
+  function moveOf(c) { return c.pv ? (c.v - c.pv) / c.pv * 100 : 0; }
+
+  // ------------------------------------------------------------- boot
+  var UNIVERSE_TTL = 2 * 60 * 60 * 1000;   // two hours
+
+  function cachedUniverse() {
+    try {
+      var c = JSON.parse(localStorage.getItem("fsl.universe"));
+      if (c && c.ts && Date.now() - c.ts < UNIVERSE_TTL && c.companies && c.companies.length &&
+          c.companies.every(function (x) { return x.v > 0; })) return c;
+    } catch (e) {}
+    return null;
+  }
+
+  async function loadUniverse(force) {
+    var c = force ? null : cachedUniverse();
+    if (c) { S.companies = c.companies; S.ready = true; return true; }
+    var u = await api("universe", {});
+    if (!u.ok) { S.err = u.error; render(); return false; }
+    S.companies = u.companies || [];
+    S.ready = true;
+    var seeded = S.companies.length && S.companies.every(function (c) { return c.v > 0; });
+    if (seeded) {
+      try {
+        localStorage.setItem("fsl.universe", JSON.stringify({ ts: Date.now(), companies: S.companies }));
+      } catch (e) {}
+    } else {
+      try { localStorage.removeItem("fsl.universe"); } catch (e) {}
+      S.err = "Every company is priced at 0. Run resetValues() in Apps Script, then reload.";
+    }
+    return true;
+  }
+
+  async function boot() {
+    var params = new URLSearchParams(location.search);
+    var invited = params.get("league");
+    S.me = loadMe();
+    if (invited && (!S.me || S.me.code !== invited.toUpperCase())) {
+      S.invited = invited.toUpperCase();
+      S.me = null;
+    }
+    var c = cachedUniverse();
+    if (c) { S.companies = c.companies; S.ready = true; }
+    render();                                  // the sign-in form appears immediately
+    if (!c) await loadUniverse(false);
+    render();
+    if (S.me) await refresh();
+  }
+
+  async function refresh() {
+    if (!S.me) return;
+    S.busy = true; render();
+    var r = await api("state", { code: S.me.code, email: S.me.email });
+    S.busy = false;
+    if (!r.ok) { S.err = r.error; S.view = "auth"; S.me = null; forgetMe(); return render(); }
+    var lastWeek = null;
+    try { lastWeek = Number(localStorage.getItem("fsl.week")); } catch (e) {}
+    S.league = r.league; S.managers = r.managers || []; S.owned = r.owned || {};
+    if (lastWeek && S.league.week !== lastWeek) { await loadUniverse(true); }
+    try { localStorage.setItem("fsl.week", String(S.league.week)); } catch (e) {}
+    var m = meMgr();
+    draft.lineup = (m && m.lineup && m.lineup.length) ? m.lineup.slice() : [];
+    draft.conv = m ? m.conviction : null;
+    S.view = (m && m.squad.length < SQUAD) ? "build" : "team";
+    render();
+  }
+
+  async function createLeague() {
+    var name = $("lgName").value, who = $("myName").value, mail = $("myMail").value;
+    S.busy = true; S.err = null; render();
+    var r = await api("create", { league: name, name: who, email: mail, max: $("maxN").value || 12 });
+    S.busy = false;
+    if (!r.ok) { S.err = r.error; return render(); }
+    S.me = { email: String(mail).trim().toLowerCase(), name: who, code: r.code };
+    S.view = "build";
+    saveMe(); S.note = "League created. Share the link on the Invite tab."; await refresh();
+  }
+
+  async function joinLeague() {
+    var name = $("lgName").value, who = $("myName").value, mail = $("myMail").value;
+    S.busy = true; S.err = null; render();
+    var r = await api("join", { league: name, name: who, email: mail });
+    S.busy = false;
+    if (!r.ok) { S.err = r.error; return render(); }
+    S.me = { email: String(mail).trim().toLowerCase(), name: who, code: r.code };
+    S.view = "build";
+    saveMe(); await refresh();
+  }
+
+  async function act(action, params, okNote) {
+    S.busy = true; S.err = null; render();
+    var r = await api(action, Object.assign({ code: S.me.code, email: S.me.email }, params));
+    S.busy = false;
+    if (!r.ok) { S.err = r.error; render(); return false; }
+    if (okNote) S.note = okNote;
+    await refresh();
+    return true;
+  }
+
+  var buy = function (t) { return act("sign", { ticker: t }); };
+  var sell = function (t) { return act("sell", { ticker: t }); };
+  var saveLineup = function () {
+    return act("lineup", { lineup: JSON.stringify(draft.lineup), conviction: draft.conv },
+               "Lineup saved. It scores at the next settlement.");
+  };
+
+  // ------------------------------------------------------------- budget maths
+  function spent(m) {
+    var s = 0;
+    m.squad.forEach(function (t) { var c = co(t); if (c) s += c.v; });
+    return s;
+  }
+  function freeCosts() {
+    var arr = [];
+    S.companies.forEach(function (c) { if (!S.owned[c.t]) arr.push(c.v * 1.02); });
+    return arr.sort(function (a, b) { return a - b; });
+  }
+  function reserve(k, excludeVal) {
+    if (k <= 0) return 0;
+    var arr = freeCosts(), s = 0, n = 0, skipped = (excludeVal === undefined);
+    for (var i = 0; i < arr.length && n < k; i++) {
+      if (!skipped && Math.abs(arr[i] - excludeVal) < 1) { skipped = true; continue; }
+      s += arr[i]; n++;
+    }
+    return n < k ? Infinity : s;
+  }
+  function canSign(m, c) {
+    if (S.owned[c.t]) return false;
+    var cost = c.v * 1.02;
+    return cost <= m.credits - reserve(SQUAD - m.squad.length - 1, cost);
+  }
+
+  // ------------------------------------------------------------- views
+  function shareUrl() {
+    return location.origin + location.pathname + "?league=" + (S.league ? S.league.code : "");
+  }
+
+  function authHTML() {
+    var inv = S.invited
+      ? '<p class="note" style="margin-bottom:10px">You were invited to <b>' + esc(S.invited) +
+        '</b>. Fill your name and email and press Join.</p>' : "";
+    return '<div class="eyebrow"><span>Sign in</span><span>' +
+      (S.ready ? S.companies.length + " companies loaded" : "loading the company list…") + '</span></div>' +
+      '<div class="meter">' + inv +
+      '<div class="search"><input type="text" id="lgName" placeholder="League name, e.g. Oficina Vigo" value="' +
+        esc(S.invited || "") + '"></div>' +
+      '<div class="search"><input type="text" id="myName" placeholder="Your manager name"></div>' +
+      '<div class="search"><input type="text" id="myMail" placeholder="Your email"></div>' +
+      '<div class="search" style="margin-bottom:0"><input type="text" id="maxN" placeholder="Max managers (12)" value="12"></div>' +
+      '</div>' +
+      '<button class="go" id="joinBtn">' + (S.busy ? "Working…" : "Join this league") + '</button>' +
+      '<button class="go ghost" id="createBtn">Create it instead</button>' +
+      '<p class="note" style="margin-top:12px">To join, you only need the league name someone gives you. ' +
+      'Your email identifies you, so you can come back on any device.</p>';
+  }
+
+  function inviteHTML() {
+    var full = S.managers.length >= S.league.max;
+    return '<div class="eyebrow"><span>Invite your friends</span><span>' + S.managers.length +
+      ' of ' + S.league.max + ' managers</span></div>' +
+      '<div class="meter"><div class="mrow"><span>League name</span><b>' + esc(S.league.name) + '</b></div>' +
+      '<div class="mrow" style="margin-top:6px"><span>They can also just type this</span><b class="mono">' +
+      esc(S.league.code) + '</b></div></div>' +
+      '<div class="eyebrow"><span>Share link</span></div>' +
+      '<div class="meter"><input type="text" id="shareBox" readonly value="' + esc(shareUrl()) + '">' +
+      '<button class="go" id="copyBtn" style="margin-top:9px">Copy the link</button></div>' +
+      (full ? '<p class="note warn">This league is full.</p>'
+            : '<p class="note">Anyone opening that link lands on the join screen with the league already filled in. ' +
+              'They add their name and email and they are in.</p>') +
+      '<hr class="rule"><div class="eyebrow"><span>Managers</span></div>' +
+      S.managers.map(function (m) {
+        return '<div class="res"><div class="g"><div class="n">' + esc(m.name) + (m.me ? " (you)" : "") +
+          '</div><div class="m mono">' + esc(m.email) + ' · squad ' + m.squad.length + '/10</div></div></div>';
+      }).join("") +
+      '<button class="go ghost" id="outBtn">Sign out of this device</button>';
+  }
+
+  function buildHTML() {
+    var m = meMgr();
+    var pct = Math.min(100, (BUDGET - m.credits) / BUDGET * 100);
+    var need = reserve(SQUAD - m.squad.length);
+    var slots = [];
+    for (var i = 0; i < SQUAD; i++) {
+      var t = m.squad[i];
+      slots.push(t === undefined ? '<div class="slot">' + (i + 1) + '</div>'
+        : '<div class="slot full" data-sell="' + t + '"><b>' + t + '</b><span>' +
+          money(co(t) ? co(t).v : 0) + '</span></div>');
+    }
+    var q = F.q.trim().toLowerCase();
+    var list = S.companies.filter(function (c) { return !S.owned[c.t] || S.owned[c.t] === S.me.email; });
+    if (F.fam !== "all") list = list.filter(function (c) { return famOf(c) === F.fam; });
+    if (q) list = list.filter(function (c) {
+      return c.t.toLowerCase().indexOf(q) >= 0 || String(c.n).toLowerCase().indexOf(q) >= 0;
+    });
+    list.sort(F.sort === "cost-desc" ? function (a, b) { return b.v - a.v; }
+      : F.sort === "cost-asc" ? function (a, b) { return a.v - b.v; }
+      : function (a, b) { return String(a.n).localeCompare(String(b.n)); });
+
+    var rows = list.slice(0, 60).map(function (c) {
+      var mine = S.owned[c.t] === S.me.email, can = canSign(m, c) && m.squad.length < SQUAD;
+      return '<div class="res ' + ((!mine && !can) ? "taken" : "") + '"><div class="g"><div class="n">' +
+        esc(c.n) + '</div><div class="m mono">' + c.t + ' · ' + famOf(c) + '</div></div>' +
+        '<div class="c mono">' + money(c.v * 1.02) + '</div>' +
+        (mine ? '<button class="mini" data-sell="' + c.t + '">Release</button>'
+              : '<button class="add" data-buy="' + c.t + '" ' + (can ? "" : "disabled") + '>Sign</button>') +
+        '</div>';
+    }).join("") || '<div class="empty">Nothing matches that.</div>';
+
+    return '<div class="meter"><div class="mrow"><span>Budget left</span><b class="mono">' +
+      money(m.credits) + '</b></div><div class="bar"><i style="width:' + pct + '%"></i></div>' +
+      '<div class="mrow" style="margin-top:6px"><span>' + m.squad.length + '/10 signed</span><span>' +
+      (m.squad.length < SQUAD ? "cheapest way to fill the rest: " + money(need) : "squad complete") +
+      '</span></div></div>' +
+      '<div class="slots">' + slots.join("") + '</div>' + searchBar(false) +
+      '<div class="results">' + rows + '</div>' +
+      (m.squad.length === SQUAD
+        ? '<p class="note" style="margin-top:12px">Squad complete. Field your seven on the Team sheet.</p>'
+        : '<p class="note" style="margin-top:12px">Sign ' + (SQUAD - m.squad.length) + ' more to start playing.</p>');
+  }
+
+  function searchBar(withMove) {
+    return '<div class="search"><input type="text" id="q" placeholder="Search by ticker or name" value="' +
+      esc(F.q) + '" autocomplete="off"><select id="sort">' +
+      '<option value="cost-desc"' + (F.sort === "cost-desc" ? " selected" : "") + '>Priciest</option>' +
+      '<option value="cost-asc"' + (F.sort === "cost-asc" ? " selected" : "") + '>Cheapest</option>' +
+      (withMove ? '<option value="move"' + (F.sort === "move" ? " selected" : "") + '>Biggest risers</option>' : "") +
+      '<option value="name"' + (F.sort === "name" ? " selected" : "") + '>A–Z</option></select></div>' +
+      '<div class="chips"><button class="fchip" data-fam="all" aria-pressed="' + (F.fam === "all") + '">All</button>' +
+      ["Tech", "Health", "Money", "Everyday", "Industry"].map(function (f) {
+        return '<button class="fchip" data-fam="' + f + '" aria-pressed="' + (F.fam === f) + '">' + f + '</button>';
+      }).join("") + '</div>';
+  }
+
+  function teamHTML() {
+    var m = meMgr();
+    var chips = m.squad.map(function (t) {
+      var c = co(t) || { t: t, n: t, v: 0, f: "", p: 0 };
+      var on = draft.lineup.indexOf(t) >= 0, conv = draft.conv === t;
+      var d = moveOf(c);
+      var dv = d ? '<span class="dv ' + (d >= 0 ? "pos" : "neg") + '">' + (d >= 0 ? "▲" : "▼") +
+        Math.abs(d).toFixed(1) + '%</span>' : "";
+      var halo = c.p > 0 ? " up" : c.p < 0 ? " down" : "";
+      return '<button class="chip ' + (on ? "on " : "") + (conv ? "conv " : "") + halo + '" data-id="' + t + '">' +
+        (conv ? '<span class="star">★</span>' : "") + '<span class="tk">' + t + '</span>' +
+        '<span class="vl mono">' + money(c.v) + ' ' + dv + '</span>' +
+        '<span class="fm">' + famOf(c) + '</span></button>';
+    }).join("");
+
+    var n = draft.lineup.length, ok = (n === LINEUP && draft.conv);
+    var msg = n < LINEUP ? '<span class="mono">' + n + '/7</span> fielded. Any seven you like.'
+      : !draft.conv ? 'Seven in. Tap one again to set your <b>conviction</b> — it doubles, both ways.'
+      : 'Conviction on <b>' + draft.conv + '</b>. Save it before the weekend settlement.';
+
+    return rivalHTML() +
+      '<div class="eyebrow"><span>Your squad · tap to field</span><span>week ' + S.league.week + '</span></div>' +
+      '<div class="sheet">' + chips + '</div><hr class="rule"><p class="note">' + msg + '</p>' +
+      '<button class="go" id="saveBtn" ' + (ok ? "" : "disabled") + '>' +
+      (S.busy ? "Saving…" : "Save my lineup") + '</button>' +
+      '<p class="note" style="margin-top:10px">Scores settle automatically once a week, from the closing ' +
+      'prices your sheet captured. There is no button for it.</p>';
+  }
+
+  function rivalHTML() {
+    var m = meMgr();
+    if (!m || S.managers.length < 2) return "";
+    var st = S.managers.slice().sort(function (a, b) { return b.points - a.points; });
+    var i = st.findIndex(function (x) { return x.me; });
+    var target = i > 0 ? st[i - 1] : st[1];
+    if (!target) return "";
+    var gap = Math.abs(Math.round(target.points - m.points));
+    return '<div class="rival"><div><span class="rl">' + (i > 0 ? "Chasing" : "Being chased by") +
+      '</span><b>' + esc(target.name) + '</b></div><div class="rg mono">' + (i > 0 ? "−" : "+") + gap + '</div></div>';
+  }
+
+  function marketHTML() {
+    var m = meMgr();
+    var q = F.q.trim().toLowerCase();
+    var list = S.companies.filter(function (c) { return !S.owned[c.t]; });
+    if (F.fam !== "all") list = list.filter(function (c) { return famOf(c) === F.fam; });
+    if (q) list = list.filter(function (c) {
+      return c.t.toLowerCase().indexOf(q) >= 0 || String(c.n).toLowerCase().indexOf(q) >= 0;
+    });
+    list.sort(F.sort === "cost-desc" ? function (a, b) { return b.v - a.v; }
+      : F.sort === "cost-asc" ? function (a, b) { return a.v - b.v; }
+      : F.sort === "move" ? function (a, b) { return moveOf(b) - moveOf(a); }
+      : function (a, b) { return String(a.n).localeCompare(String(b.n)); });
+
+    var rows = list.slice(0, 60).map(function (c) {
+      var cost = c.v * 1.02, can = m.squad.length < SQUAD && m.credits >= cost;
+      var d = moveOf(c);
+      return '<div class="res ' + (can ? "" : "taken") + '"><div class="g"><div class="n">' + esc(c.n) +
+        '</div><div class="m mono">' + c.t + ' · ' + famOf(c) +
+        (d ? ' <span class="' + (d >= 0 ? "pos" : "neg") + '">' + (d >= 0 ? "▲" : "▼") +
+             Math.abs(d).toFixed(1) + '%</span>' : "") + '</div></div>' +
+        '<div class="c mono">' + money(cost) + '</div>' +
+        '<button class="add" data-buy="' + c.t + '" ' + (can ? "" : "disabled") + '>Buy</button></div>';
+    }).join("") || '<div class="empty">Nothing matches that.</div>';
+
+    var mine = m.squad.map(function (t) {
+      var c = co(t) || { v: 0, n: t };
+      var paid = m.paid[t] || c.v, pl = paid ? (c.v - paid) / paid * 100 : 0;
+      return '<div class="res"><div class="g"><div class="n">' + esc(c.n) + '</div><div class="m mono">' +
+        t + ' · paid ' + money(paid) + ' · <span class="' + (pl >= 0 ? "pos" : "neg") + '">' +
+        (pl >= 0 ? "+" : "") + pl.toFixed(1) + '%</span></div></div><div class="c mono">' +
+        money(c.v * 0.9) + '</div><button class="mini" data-sell="' + t + '">Sell</button></div>';
+    }).join("");
+
+    return '<div class="meter"><div class="mrow"><span>Cash</span><b class="mono">' + money(m.credits) +
+      '</b></div><div class="mrow" style="margin-top:6px"><span>' + m.squad.length + '/10 held</span><span>' +
+      (m.squad.length === SQUAD ? "squad full — sell before you buy" : "buy " + (SQUAD - m.squad.length) + " more to play") +
+      '</span></div></div>' +
+      '<div class="eyebrow"><span>Your holdings · sell at 90%</span><span>P/L</span></div>' +
+      '<div class="results" style="max-height:190px">' + mine + '</div><hr class="rule">' +
+      '<div class="eyebrow"><span>On the market</span><span>buy price includes 2% fee</span></div>' +
+      searchBar(true) + '<div class="results">' + rows + '</div>';
+  }
+
+  function tableHTML() {
+    var st = S.managers.slice().sort(function (a, b) { return b.points - a.points; });
+    return '<div class="eyebrow"><span>League ' + esc(S.league.name) + '</span><span>Season points</span></div>' +
+      st.map(function (m, i) {
+        return '<div class="row ' + (m.me ? "you" : "") + '"><div class="rank">' + (i + 1) + '</div>' +
+          '<div class="grow"><div class="nm">' + esc(m.name) + '</div><div class="mt">week ' + m.week +
+          ' · last week ' + sign(m.lastWeek) + (m.streak >= 3 ? " · 🔥" + m.streak : "") + '</div></div>' +
+          '<div class="mono ' + (m.points >= 0 ? "pos" : "neg") + '" style="font-size:19px">' +
+          sign(m.points) + '</div></div>';
+      }).join("") +
+      '<hr class="rule"><button class="go ghost" id="refreshBtn">Refresh from the sheet</button>' +
+      '<p class="note" style="margin-top:10px">Points come from beating a 50/50 blend of the whole market and ' +
+      'the company\'s own family. A company that rises with everything else scores nothing.</p>';
+  }
+
+  // ------------------------------------------------------------- shell
+  function render() {
+    var m = meMgr();
+    var tabs = !S.me ? [] : (m && m.squad.length < SQUAD)
+      ? [["build", "Squad build"], ["invite", "Invite"]]
+      : [["team", "Team sheet"], ["market", "Market"], ["table", "Table"], ["invite", "Invite"]];
+    $("tabs").innerHTML = tabs.map(function (t) {
+      return '<button class="tab" data-v="' + t[0] + '" aria-selected="' + (S.view === t[0]) + '">' + t[1] + '</button>';
+    }).join("");
+
+    $("wkLabel").textContent = S.league ? (S.league.name + " · week " + S.league.week) : "Not signed in";
+    if (m) {
+      var st = S.managers.slice().sort(function (a, b) { return b.points - a.points; });
+      $("pRank").textContent = (st.findIndex(function (x) { return x.me; }) + 1) + " of " + S.managers.length;
+      $("pPts").textContent = Math.round(m.points);
+      $("pCr").textContent = money(m.credits);
+    } else {
+      $("pRank").textContent = "—"; $("pPts").textContent = "—"; $("pCr").textContent = "—";
+    }
+    $("hl").textContent = !S.me ? "Join a league"
+      : (!S.ready || !m) ? "Loading…"
+      : S.view === "build" ? "Build your ten"
+      : S.view === "market" ? "The market"
+      : S.view === "table" ? "The table"
+      : S.view === "invite" ? "Invite" : "Field your seven";
+
+    var loadingLeague = S.me && (!S.ready || !m);
+    var body = !S.me ? authHTML()
+      : loadingLeague ? '<div class="empty">Loading your league…</div>'
+      : S.view === "invite" ? inviteHTML()
+      : S.view === "build" ? buildHTML()
+      : S.view === "market" ? marketHTML()
+      : S.view === "table" ? tableHTML() : teamHTML();
+
+    $("view").innerHTML =
+      (S.err ? '<p class="note warn banner">' + esc(S.err) + '</p>' : "") +
+      (S.note ? '<p class="note banner ok">' + esc(S.note) + '</p>' : "") + body;
+    S.note = null;
+    wire();
+  }
+
+  function wire() {
+    document.querySelectorAll(".tab").forEach(function (b) {
+      b.addEventListener("click", function () { S.view = b.dataset.v; render(); });
+    });
+    var j = $("joinBtn"); if (j) j.addEventListener("click", function () {
+      if (!S.ready) { S.err = "still loading the company list, give it a second"; return render(); }
+      joinLeague();
+    });
+    var c = $("createBtn"); if (c) c.addEventListener("click", function () {
+      if (!S.ready) { S.err = "still loading the company list, give it a second"; return render(); }
+      createLeague();
+    });
+    var q = $("q");
+    if (q) {
+      q.addEventListener("input", function (e) {
+        F.q = e.target.value; render();
+        var n = $("q"); if (n) { n.focus(); n.setSelectionRange(n.value.length, n.value.length); }
+      });
+      var so = $("sort"); if (so) so.addEventListener("change", function (e) { F.sort = e.target.value; render(); });
+    }
+    document.querySelectorAll("[data-fam]").forEach(function (b) {
+      b.addEventListener("click", function () { F.fam = b.dataset.fam; render(); });
+    });
+    document.querySelectorAll("[data-buy]").forEach(function (b) {
+      b.addEventListener("click", function () { buy(b.dataset.buy); });
+    });
+    document.querySelectorAll("[data-sell]").forEach(function (b) {
+      b.addEventListener("click", function () { sell(b.dataset.sell); });
+    });
+    document.querySelectorAll(".chip[data-id]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var t = b.dataset.id, i = draft.lineup.indexOf(t);
+        if (i >= 0) {
+          if (draft.lineup.length === LINEUP && draft.conv !== t) { draft.conv = t; }
+          else { draft.lineup.splice(i, 1); if (draft.conv === t) draft.conv = null; }
+        } else if (draft.lineup.length < LINEUP) { draft.lineup.push(t); }
+        render();
+      });
+    });
+    var sb = $("saveBtn"); if (sb) sb.addEventListener("click", saveLineup);
+    var rb = $("refreshBtn"); if (rb) rb.addEventListener("click", refresh);
+    var ob = $("outBtn"); if (ob) ob.addEventListener("click", function () {
+      forgetMe(); S.me = null; S.managers = []; S.view = "auth"; render();
+    });
+    var cp = $("copyBtn");
+    if (cp) cp.addEventListener("click", function () {
+      var box = $("shareBox"); box.select();
+      try { document.execCommand("copy"); S.note = "Link copied."; }
+      catch (e) { S.note = "Select the link and copy it."; }
+      render();
+    });
+  }
+
+  boot();
+})();
+
+</script>
+</body>
+</html>
