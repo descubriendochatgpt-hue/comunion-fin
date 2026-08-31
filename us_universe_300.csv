@@ -1,0 +1,338 @@
+ticker,name,family,tier,cost_credits_m
+AAPL,Apple,Technology,A,71.7
+MSFT,Microsoft,Technology,A,62.0
+NVDA,Nvidia,Technology,A,55.5
+GOOGL,Alphabet,Technology,A,70.2
+META,Meta Platforms,Technology,A,60.1
+AVGO,Broadcom,Technology,A,70.9
+ORCL,Oracle,Technology,A,55.6
+LLY,Eli Lilly,Health,A,68.4
+JNJ,Johnson & Johnson,Health,A,70.9
+UNH,UnitedHealth,Health,A,62.8
+ABBV,AbbVie,Health,A,62.5
+MRK,Merck,Health,A,71.1
+TMO,Thermo Fisher,Health,A,63.1
+BRK-B,Berkshire Hathaway,Money,A,67.2
+JPM,JPMorgan Chase,Money,A,72.2
+V,Visa,Money,A,56.7
+MA,Mastercard,Money,A,64.0
+BAC,Bank of America,Money,A,68.4
+WFC,Wells Fargo,Money,A,56.2
+AMZN,Amazon,Everyday,A,69.1
+WMT,Walmart,Everyday,A,60.9
+PG,Procter & Gamble,Everyday,A,66.0
+COST,Costco,Everyday,A,58.8
+HD,Home Depot,Everyday,A,61.0
+KO,Coca-Cola,Everyday,A,63.1
+PEP,PepsiCo,Everyday,A,60.8
+XOM,Exxon Mobil,Industry,A,61.2
+CVX,Chevron,Industry,A,61.1
+COP,ConocoPhillips,Industry,A,56.6
+EOG,EOG Resources,Industry,A,74.8
+SLB,Schlumberger,Industry,A,63.0
+PSX,Phillips 66,Industry,A,69.6
+MPC,Marathon Petroleum,Industry,A,69.7
+VLO,Valero Energy,Industry,A,60.9
+OXY,Occidental,Industry,A,73.5
+CRM,Salesforce,Technology,B,38.4
+AMD,AMD,Technology,B,36.6
+ADBE,Adobe,Technology,B,40.6
+CSCO,Cisco,Technology,B,45.6
+ACN,Accenture,Technology,B,50.6
+TXN,Texas Instruments,Technology,B,49.9
+QCOM,Qualcomm,Technology,B,48.6
+IBM,IBM,Technology,B,44.3
+INTU,Intuit,Technology,B,44.3
+NOW,ServiceNow,Technology,B,48.7
+AMAT,Applied Materials,Technology,B,53.8
+MU,Micron,Technology,B,44.4
+ADI,Analog Devices,Technology,B,51.2
+LRCX,Lam Research,Technology,B,43.6
+KLAC,KLA,Technology,B,48.6
+PANW,Palo Alto Networks,Technology,B,52.3
+ABT,Abbott,Health,B,50.1
+PFE,Pfizer,Health,B,41.2
+AMGN,Amgen,Health,B,37.4
+DHR,Danaher,Health,B,51.5
+BMY,Bristol-Myers Squibb,Health,B,36.3
+GILD,Gilead,Health,B,48.0
+VRTX,Vertex,Health,B,48.5
+ISRG,Intuitive Surgical,Health,B,39.4
+CI,Cigna,Health,B,38.0
+ELV,Elevance Health,Health,B,53.3
+MCK,McKesson,Health,B,41.8
+GS,Goldman Sachs,Money,B,40.7
+MS,Morgan Stanley,Money,B,44.4
+AXP,American Express,Money,B,43.7
+BLK,BlackRock,Money,B,35.4
+SPGI,S&P Global,Money,B,48.8
+C,Citigroup,Money,B,36.3
+SCHW,Charles Schwab,Money,B,39.3
+CB,Chubb,Money,B,37.9
+PGR,Progressive,Money,B,42.0
+MMC,Marsh & McLennan,Money,B,47.8
+ICE,Intercontinental Exch,Money,B,44.8
+CME,CME Group,Money,B,35.1
+PYPL,PayPal,Money,B,35.7
+NFLX,Netflix,Everyday,B,52.3
+MCD,McDonald's,Everyday,B,41.6
+DIS,Walt Disney,Everyday,B,52.1
+CMCSA,Comcast,Everyday,B,49.9
+NKE,Nike,Everyday,B,45.8
+TJX,TJX Companies,Everyday,B,41.4
+LOW,Lowe's,Everyday,B,50.2
+PM,Philip Morris Intl,Everyday,B,46.1
+MO,Altria,Everyday,B,44.3
+MDLZ,Mondelez,Everyday,B,36.5
+CL,Colgate-Palmolive,Everyday,B,38.1
+SBUX,Starbucks,Everyday,B,48.2
+TGT,Target,Everyday,B,39.5
+KMB,Kimberly-Clark,Everyday,B,49.3
+GIS,General Mills,Everyday,B,50.3
+HES,Hess,Industry,B,47.1
+DVN,Devon Energy,Industry,B,40.1
+FANG,Diamondback Energy,Industry,B,37.6
+HAL,Halliburton,Industry,B,44.4
+BKR,Baker Hughes,Industry,B,54.9
+OKE,ONEOK,Industry,B,45.0
+WMB,Williams Companies,Industry,B,40.5
+KMI,Kinder Morgan,Industry,B,49.5
+TRGP,Targa Resources,Industry,B,45.4
+GE,GE Aerospace,Industry,B,40.4
+CAT,Caterpillar,Industry,B,48.0
+HON,Honeywell,Industry,B,53.2
+UNP,Union Pacific,Industry,B,43.0
+BA,Boeing,Industry,B,37.2
+LMT,Lockheed Martin,Industry,B,48.9
+RTX,RTX,Industry,B,49.2
+DE,Deere,Industry,B,38.5
+UPS,United Parcel Service,Industry,B,44.3
+MMM,3M,Industry,B,48.0
+ETN,Eaton,Industry,B,38.1
+SNPS,Synopsys,Technology,C,20.9
+CDNS,Cadence,Technology,C,26.1
+CRWD,CrowdStrike,Technology,C,22.7
+ANET,Arista Networks,Technology,C,20.3
+INTC,Intel,Technology,C,26.7
+DELL,Dell,Technology,C,23.0
+HPQ,HP,Technology,C,34.1
+HPE,Hewlett Packard Ent,Technology,C,34.0
+WDC,Western Digital,Technology,C,35.0
+STX,Seagate,Technology,C,30.1
+NTAP,NetApp,Technology,C,20.4
+MSI,Motorola Solutions,Technology,C,32.5
+APH,Amphenol,Technology,C,22.7
+TEL,TE Connectivity,Technology,C,22.3
+GLW,Corning,Technology,C,32.9
+KEYS,Keysight,Technology,C,30.3
+TER,Teradyne,Technology,C,22.4
+MCHP,Microchip,Technology,C,34.7
+ON,ON Semiconductor,Technology,C,27.9
+NXPI,NXP Semiconductors,Technology,C,24.9
+SWKS,Skyworks,Technology,C,28.7
+QRVO,Qorvo,Technology,C,25.5
+FTNT,Fortinet,Technology,C,26.8
+REGN,Regeneron,Health,C,23.4
+ZTS,Zoetis,Health,C,25.9
+BSX,Boston Scientific,Health,C,23.7
+SYK,Stryker,Health,C,32.2
+MDT,Medtronic,Health,C,25.7
+CVS,CVS Health,Health,C,24.5
+HCA,HCA Healthcare,Health,C,27.8
+BDX,Becton Dickinson,Health,C,31.8
+EW,Edwards Lifesciences,Health,C,23.4
+A,Agilent,Health,C,21.0
+IQV,IQVIA,Health,C,34.1
+RMD,ResMed,Health,C,27.1
+DXCM,Dexcom,Health,C,23.1
+IDXX,Idexx Labs,Health,C,34.3
+MTD,Mettler-Toledo,Health,C,32.9
+WST,West Pharmaceutical,Health,C,27.2
+BIIB,Biogen,Health,C,22.9
+COF,Capital One,Money,C,21.0
+TRV,Travelers,Money,C,28.5
+AIG,AIG,Money,C,34.4
+AON,Aon,Money,C,22.3
+AJG,Arthur J Gallagher,Money,C,34.9
+MET,MetLife,Money,C,26.1
+PRU,Prudential Financial,Money,C,30.4
+AFL,Aflac,Money,C,33.1
+ALL,Allstate,Money,C,20.9
+HIG,Hartford,Money,C,30.7
+WTW,Willis Towers Watson,Money,C,27.7
+MCO,Moody's,Money,C,25.1
+MSCI,MSCI,Money,C,23.7
+NDAQ,Nasdaq,Money,C,28.9
+CBOE,Cboe Global Markets,Money,C,27.5
+FI,Fiserv,Money,C,23.6
+FIS,FIS,Money,C,31.7
+GPN,Global Payments,Money,C,34.7
+DFS,Discover,Money,C,31.4
+SYF,Synchrony Financial,Money,C,32.1
+YUM,Yum! Brands,Everyday,C,26.9
+EL,Estee Lauder,Everyday,C,23.2
+DG,Dollar General,Everyday,C,22.7
+DLTR,Dollar Tree,Everyday,C,22.7
+KR,Kroger,Everyday,C,26.1
+SYY,Sysco,Everyday,C,32.4
+KDP,Keurig Dr Pepper,Everyday,C,26.8
+KHC,Kraft Heinz,Everyday,C,28.4
+HSY,Hershey,Everyday,C,20.6
+STZ,Constellation Brands,Everyday,C,30.1
+MNST,Monster Beverage,Everyday,C,33.8
+K,Kellanova,Everyday,C,21.1
+CAG,Conagra,Everyday,C,29.5
+CPB,Campbell's,Everyday,C,21.4
+SJM,JM Smucker,Everyday,C,25.2
+HRL,Hormel Foods,Everyday,C,35.0
+TSN,Tyson Foods,Everyday,C,28.9
+MKC,McCormick,Everyday,C,28.7
+CLX,Clorox,Everyday,C,34.9
+CHD,Church & Dwight,Everyday,C,32.7
+TAP,Molson Coors,Everyday,C,20.5
+ROST,Ross Stores,Everyday,C,23.6
+ORLY,O'Reilly Automotive,Everyday,C,24.9
+EMR,Emerson Electric,Industry,C,34.1
+ITW,Illinois Tool Works,Industry,C,20.5
+NOC,Northrop Grumman,Industry,C,29.9
+GD,General Dynamics,Industry,C,24.0
+LHX,L3Harris,Industry,C,28.2
+TDG,TransDigm,Industry,C,21.8
+HWM,Howmet Aerospace,Industry,C,22.3
+PH,Parker Hannifin,Industry,C,28.3
+CMI,Cummins,Industry,C,20.1
+PCAR,Paccar,Industry,C,25.7
+ROK,Rockwell Automation,Industry,C,28.1
+DOV,Dover,Industry,C,20.7
+IR,Ingersoll Rand,Industry,C,25.2
+XYL,Xylem,Industry,C,29.3
+AME,Ametek,Industry,C,21.2
+FTV,Fortive,Industry,C,22.2
+SWK,Stanley Black & Decker,Industry,C,31.3
+FAST,Fastenal,Industry,C,24.5
+GWW,WW Grainger,Industry,C,23.1
+URI,United Rentals,Industry,C,27.7
+WM,Waste Management,Industry,C,31.6
+RSG,Republic Services,Industry,C,29.9
+CSX,CSX,Industry,C,23.1
+NSC,Norfolk Southern,Industry,C,31.8
+ODFL,Old Dominion,Industry,C,29.3
+JBHT,JB Hunt,Industry,C,26.1
+CHRW,CH Robinson,Industry,C,26.1
+EXPD,Expeditors Intl,Industry,C,27.1
+DAL,Delta Air Lines,Industry,C,29.0
+ADSK,Autodesk,Technology,D,18.1
+WDAY,Workday,Technology,D,14.5
+DDOG,Datadog,Technology,D,13.0
+SNOW,Snowflake,Technology,D,10.3
+TEAM,Atlassian,Technology,D,17.8
+ZS,Zscaler,Technology,D,18.7
+MDB,MongoDB,Technology,D,13.6
+HUBS,HubSpot,Technology,D,17.9
+VRSN,Verisign,Technology,D,16.3
+AKAM,Akamai,Technology,D,10.1
+EPAM,EPAM Systems,Technology,D,13.3
+CTSH,Cognizant,Technology,D,19.8
+IT,Gartner,Technology,D,13.5
+GDDY,GoDaddy,Technology,D,15.9
+TYL,Tyler Technologies,Technology,D,17.8
+PTC,PTC,Technology,D,17.4
+ANSS,Ansys,Technology,D,14.6
+FICO,Fair Isaac,Technology,D,15.1
+JNPR,Juniper Networks,Technology,D,12.1
+ZBRA,Zebra Technologies,Technology,D,16.5
+TDY,Teledyne,Technology,D,11.4
+TRMB,Trimble,Technology,D,16.9
+JBL,Jabil,Technology,D,14.2
+SMCI,Super Micro,Technology,D,16.9
+MRNA,Moderna,Health,D,16.2
+CAH,Cardinal Health,Health,D,16.4
+COR,Cencora,Health,D,10.8
+ZBH,Zimmer Biomet,Health,D,18.2
+BAX,Baxter,Health,D,16.9
+HOLX,Hologic,Health,D,13.1
+STE,Steris,Health,D,16.5
+ALGN,Align Technology,Health,D,11.6
+PODD,Insulet,Health,D,10.2
+CRL,Charles River Labs,Health,D,11.7
+LH,Labcorp,Health,D,14.3
+DGX,Quest Diagnostics,Health,D,18.0
+UHS,Universal Health,Health,D,12.2
+MOH,Molina Healthcare,Health,D,17.1
+CNC,Centene,Health,D,10.3
+VTRS,Viatris,Health,D,15.3
+INCY,Incyte,Health,D,19.4
+TECH,Bio-Techne,Health,D,18.4
+USB,US Bancorp,Money,D,15.4
+PNC,PNC Financial,Money,D,15.5
+TFC,Truist Financial,Money,D,11.8
+BK,Bank of New York,Money,D,11.2
+STT,State Street,Money,D,16.7
+NTRS,Northern Trust,Money,D,15.5
+RF,Regions Financial,Money,D,16.1
+CFG,Citizens Financial,Money,D,17.9
+KEY,KeyCorp,Money,D,14.9
+FITB,Fifth Third,Money,D,10.2
+HBAN,Huntington,Money,D,14.4
+MTB,M&T Bank,Money,D,18.6
+ZION,Zions Bancorp,Money,D,13.2
+L,Loews,Money,D,10.8
+PFG,Principal Financial,Money,D,13.1
+AMP,Ameriprise,Money,D,10.9
+TROW,T Rowe Price,Money,D,17.8
+BEN,Franklin Resources,Money,D,18.1
+IVZ,Invesco,Money,D,11.0
+RJF,Raymond James,Money,D,13.8
+AZO,AutoZone,Everyday,D,15.0
+ULTA,Ulta Beauty,Everyday,D,19.9
+BBY,Best Buy,Everyday,D,17.2
+GPC,Genuine Parts,Everyday,D,19.7
+LKQ,LKQ,Everyday,D,16.3
+DPZ,Domino's Pizza,Everyday,D,10.8
+CMG,Chipotle,Everyday,D,10.1
+DRI,Darden Restaurants,Everyday,D,11.2
+MAR,Marriott,Everyday,D,12.8
+HLT,Hilton,Everyday,D,18.2
+RCL,Royal Caribbean,Everyday,D,11.7
+CCL,Carnival,Everyday,D,17.0
+NCLH,Norwegian Cruise,Everyday,D,19.7
+LVS,Las Vegas Sands,Everyday,D,19.7
+WYNN,Wynn Resorts,Everyday,D,10.8
+MGM,MGM Resorts,Everyday,D,14.6
+EBAY,eBay,Everyday,D,18.3
+WBD,Warner Bros Discovery,Everyday,D,19.4
+LYV,Live Nation,Everyday,D,10.7
+EA,Electronic Arts,Everyday,D,12.0
+TTWO,Take-Two Interactive,Everyday,D,19.4
+POOL,Pool Corp,Everyday,D,13.7
+TSCO,Tractor Supply,Everyday,D,13.6
+UAL,United Airlines,Industry,D,19.9
+LUV,Southwest Airlines,Industry,D,19.5
+NEE,NextEra Energy,Industry,D,13.6
+DUK,Duke Energy,Industry,D,12.2
+SO,Southern Company,Industry,D,16.5
+D,Dominion Energy,Industry,D,10.7
+AEP,American Electric,Industry,D,18.5
+EXC,Exelon,Industry,D,12.7
+SRE,Sempra,Industry,D,15.9
+XEL,Xcel Energy,Industry,D,20.0
+ED,Consolidated Edison,Industry,D,12.1
+PEG,Public Service Ent,Industry,D,12.8
+WEC,WEC Energy,Industry,D,10.3
+ES,Eversource Energy,Industry,D,12.2
+AWK,American Water Works,Industry,D,14.0
+LIN,Linde,Industry,D,15.7
+APD,Air Products,Industry,D,11.8
+SHW,Sherwin-Williams,Industry,D,13.0
+ECL,Ecolab,Industry,D,16.2
+NEM,Newmont,Industry,D,13.6
+FCX,Freeport-McMoRan,Industry,D,16.0
+DOW,Dow,Industry,D,10.5
+DD,DuPont,Industry,D,11.8
+PPG,PPG Industries,Industry,D,16.2
+NUE,Nucor,Industry,D,18.5
+VMC,Vulcan Materials,Industry,D,13.2
+MLM,Martin Marietta,Industry,D,16.2
+IP,International Paper,Industry,D,13.4
+BALL,Ball Corp,Industry,D,15.8
+AVY,Avery Dennison,Industry,D,13.8
