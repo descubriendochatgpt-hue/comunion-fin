@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Fantasy Stock League</title>
-<meta name="description" content="A season-long fantasy game played with listed companies. Private leagues for friends and colleagues.">
 <style>
 
   :root{
@@ -197,12 +196,17 @@ input[readonly]{background:var(--paper-2)}
 
 <script>
 /* ===================================================================
-   THE ONLY LINE YOU EVER NEED TO EDIT.
-   Paste your Apps Script web app URL between the quotes.
-   It looks like: https://script.google.com/macros/s/AKfy...../exec
+   EDIT THIS ONE LINE. Nothing else in this file needs changing.
+
+   Replace the placeholder with your Apps Script web app URL.
+   Get it from: Apps Script > Deploy > Manage deployments > copy the
+   Web app URL. It ends in /exec
+
+   Example:
+   API_URL: "https://script.google.com/macros/s/AKfycbx.../exec"
    =================================================================== */
 window.FSL_CONFIG = {
-  API_URL: "https://script.google.com/macros/s/AKfycbzQ2He3muL4PT5rasL-hLjgPXUsSuC7GPoTXcpARNUuHoevcSZUCtjZrTywVV0zdlpMhg/exec"
+  API_URL: "PASTE_YOUR_APPS_SCRIPT_EXEC_URL_HERE"
 };
 </script>
 <script>
@@ -230,11 +234,17 @@ window.FSL_CONFIG = {
 
   // ------------------------------------------------------------- transport
   var jsonpSeq = 0;
+
+  function configured() {
+    var u = window.FSL_CONFIG && window.FSL_CONFIG.API_URL;
+    return !!(u && u.indexOf("PASTE") !== 0 && u.indexOf("script.google.com") >= 0);
+  }
+
   function api(action, params) {
     return new Promise(function (resolve) {
-      if (!window.FSL_CONFIG || !window.FSL_CONFIG.API_URL ||
-          window.FSL_CONFIG.API_URL.indexOf("PASTE") === 0) {
-        return resolve({ ok: false, error: "assets/config.js still has the placeholder URL. Paste your Apps Script /exec URL there." });
+      if (!configured()) {
+        return resolve({ ok: false, unconfigured: true,
+          error: "no backend URL set in this file yet" });
       }
       var cb = "fslcb" + (++jsonpSeq) + "_" + Date.now();
       var url = window.FSL_CONFIG.API_URL + "?action=" + encodeURIComponent(action) + "&callback=" + cb;
@@ -248,8 +258,9 @@ window.FSL_CONFIG = {
       var timer = setTimeout(function () {
         if (done) return;
         done = true; cleanup();
-        resolve({ ok: false, error: "the backend did not answer. Check the web app is deployed with access set to Anyone." });
-      }, 20000);
+        resolve({ ok: false, timeout: true,
+          error: "the backend did not answer within 30 seconds (action: " + action + ")" });
+      }, 30000);
       function cleanup() {
         clearTimeout(timer);
         delete window[cb];
@@ -258,7 +269,8 @@ window.FSL_CONFIG = {
       window[cb] = function (data) { if (done) return; done = true; cleanup(); resolve(data); };
       script.onerror = function () {
         if (done) return; done = true; cleanup();
-        resolve({ ok: false, error: "could not reach the backend URL" });
+        resolve({ ok: false, timeout: true,
+          error: "could not reach the backend URL (action: " + action + ")" });
       };
       script.src = url;
       document.head.appendChild(script);
@@ -297,7 +309,13 @@ window.FSL_CONFIG = {
     var c = force ? null : cachedUniverse();
     if (c) { S.companies = c.companies; S.ready = true; return true; }
     var u = await api("universe", {});
-    if (!u.ok) { S.err = u.error; render(); return false; }
+    if (!u.ok) {
+      S.err = u.error;
+      S.down = !!u.timeout;
+      S.unset = !!u.unconfigured;
+      render();
+      return false;
+    }
     S.companies = u.companies || [];
     S.ready = true;
     var seeded = S.companies.length && S.companies.every(function (c) { return c.v > 0; });
@@ -333,7 +351,12 @@ window.FSL_CONFIG = {
     S.busy = true; render();
     var r = await api("state", { code: S.me.code, email: S.me.email });
     S.busy = false;
-    if (!r.ok) { S.err = r.error; S.view = "auth"; S.me = null; forgetMe(); return render(); }
+    if (!r.ok) {
+      S.err = r.error;
+      if (r.timeout) { S.down = true; S.view = "auth"; return render(); }
+      S.view = "auth"; S.me = null; forgetMe(); return render();
+    }
+    S.down = false;
     var lastWeek = null;
     try { lastWeek = Number(localStorage.getItem("fsl.week")); } catch (e) {}
     S.league = r.league; S.managers = r.managers || []; S.owned = r.owned || {};
@@ -416,12 +439,42 @@ window.FSL_CONFIG = {
     return location.origin + location.pathname + "?league=" + (S.league ? S.league.code : "");
   }
 
+  function setupHTML() {
+    return '<div class="meter"><div class="eyebrow"><span>Not connected yet</span></div>' +
+      '<p class="note" style="margin-bottom:8px">This file still has the placeholder instead of your ' +
+      'Apps Script address, so there is nothing to load the companies from. Open the file, find the ' +
+      'line near the bottom that reads:</p>' +
+      '<div class="mono" style="font-size:11px;background:var(--paper-2);padding:9px;border-radius:7px;' +
+      'word-break:break-all">API_URL: "PASTE_YOUR_APPS_SCRIPT_EXEC_URL_HERE"</div>' +
+      '<p class="note" style="margin-top:9px">Replace that text with your web app URL, the one ending ' +
+      'in <span class="mono">/exec</span>. Get it from Apps Script: Deploy, Manage deployments, copy ' +
+      'the Web app URL.</p></div>';
+  }
+
+  function diagnosisHTML() {
+    var base = (window.FSL_CONFIG && window.FSL_CONFIG.API_URL) || "";
+    return '<div class="meter"><div class="eyebrow"><span>Backend not answering</span></div>' +
+      '<p class="note" style="margin-bottom:8px">Open this in a new tab. You should see ' +
+      '<span class="mono">{"ok":true,...}</span></p>' +
+      '<input type="text" readonly value="' + esc(base + "?action=ping") + '">' +
+      '<p class="note" style="margin-top:9px">' +
+      '<b>A Google login screen</b> &mdash; the deployment lost public access. Manage deployments, ' +
+      'set Who has access to Anyone.<br>' +
+      '<b>404 or "unable to open"</b> &mdash; the URL changed. A new deployment gets a new URL; ' +
+      'paste the current one into this file.<br>' +
+      '<b>A script error page</b> &mdash; open the Executions tab in Apps Script for the reason.<br>' +
+      '<b>Nothing at all</b> &mdash; daily quota. Executions will say so too.</p>' +
+      '<button class="go" id="retryBtn">Try again</button></div>';
+  }
+
   function authHTML() {
     var inv = S.invited
       ? '<p class="note" style="margin-bottom:10px">You were invited to <b>' + esc(S.invited) +
         '</b>. Fill your name and email and press Join.</p>' : "";
-    return '<div class="eyebrow"><span>Sign in</span><span>' +
-      (S.ready ? S.companies.length + " companies loaded" : "loading the company list…") + '</span></div>' +
+    return (S.unset ? setupHTML() : S.down ? diagnosisHTML() : "") +
+      '<div class="eyebrow"><span>Sign in</span><span>' +
+      (S.ready ? S.companies.length + " companies loaded"
+               : S.unset ? "not connected" : "loading the company list…") + '</span></div>' +
       '<div class="meter">' + inv +
       '<div class="search"><input type="text" id="lgName" placeholder="League name, e.g. Oficina Vigo" value="' +
         esc(S.invited || "") + '"></div>' +
@@ -656,14 +709,16 @@ window.FSL_CONFIG = {
     document.querySelectorAll(".tab").forEach(function (b) {
       b.addEventListener("click", function () { S.view = b.dataset.v; render(); });
     });
-    var j = $("joinBtn"); if (j) j.addEventListener("click", function () {
-      if (!S.ready) { S.err = "still loading the company list, give it a second"; return render(); }
-      joinLeague();
-    });
-    var c = $("createBtn"); if (c) c.addEventListener("click", function () {
-      if (!S.ready) { S.err = "still loading the company list, give it a second"; return render(); }
-      createLeague();
-    });
+    function guarded(fn) {
+      return function () {
+        if (S.unset) { S.err = "add your Apps Script URL to this file first"; return render(); }
+        if (S.down) { S.err = "the backend is not answering yet"; return render(); }
+        if (!S.ready) { S.err = "still loading the company list, give it a second"; return render(); }
+        fn();
+      };
+    }
+    var j = $("joinBtn"); if (j) j.addEventListener("click", guarded(joinLeague));
+    var c = $("createBtn"); if (c) c.addEventListener("click", guarded(createLeague));
     var q = $("q");
     if (q) {
       q.addEventListener("input", function (e) {
@@ -693,6 +748,15 @@ window.FSL_CONFIG = {
     });
     var sb = $("saveBtn"); if (sb) sb.addEventListener("click", saveLineup);
     var rb = $("refreshBtn"); if (rb) rb.addEventListener("click", refresh);
+    var tb = $("retryBtn");
+    if (tb) tb.addEventListener("click", async function () {
+      S.down = false; S.err = null; render();
+      var ping = await api("ping", {});
+      if (ping.ok) {
+        S.note = "Backend is answering again.";
+        if (S.me) { await refresh(); } else { render(); }
+      } else { S.down = true; S.err = ping.error; render(); }
+    });
     var ob = $("outBtn"); if (ob) ob.addEventListener("click", function () {
       forgetMe(); S.me = null; S.managers = []; S.view = "auth"; render();
     });
